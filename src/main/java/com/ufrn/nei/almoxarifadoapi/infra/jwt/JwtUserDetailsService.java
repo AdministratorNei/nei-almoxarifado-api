@@ -21,14 +21,13 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username).orElseThrow(
-                EntityNotFoundException::new
-        );
+                EntityNotFoundException::new);
 
         return new JwtUserDetails(user);
     }
 
     public JwtToken getTokenAuthenticated(String email) {
-        String role = userService.findByEmail(email).getRole();
+        String role = userService.findByEmail(email).getRole().getRole();
 
         if (role.contains("ROLE_")) {
             role = role.substring("ROLE_".length());

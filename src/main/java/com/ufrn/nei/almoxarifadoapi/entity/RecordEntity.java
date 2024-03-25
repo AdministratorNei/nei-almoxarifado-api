@@ -1,18 +1,12 @@
 package com.ufrn.nei.almoxarifadoapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.ufrn.nei.almoxarifadoapi.dto.user.UserRecordDTO;
 import com.ufrn.nei.almoxarifadoapi.enums.RecordOperationEnum;
-import com.ufrn.nei.almoxarifadoapi.service.UserService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -58,10 +52,13 @@ public class RecordEntity implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         RecordEntity that = (RecordEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(user, that.user) && Objects.equals(item, that.item) && Objects.equals(data, that.data);
+        return Objects.equals(id, that.id) && Objects.equals(user, that.user) && Objects.equals(item, that.item)
+                && Objects.equals(data, that.data);
     }
 
     @Override

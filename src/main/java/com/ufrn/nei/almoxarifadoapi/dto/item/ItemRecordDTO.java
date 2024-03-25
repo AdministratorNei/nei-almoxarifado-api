@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ItemRecordDTO {
     private Long id;
     private String name;
-    private Long itemTagging;
+    private Long sipacCode;
 }

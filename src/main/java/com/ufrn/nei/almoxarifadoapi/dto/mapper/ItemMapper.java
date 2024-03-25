@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 
 public class ItemMapper {

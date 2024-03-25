@@ -16,12 +16,12 @@ import java.util.Objects;
 public class ItemResponseDTO {
     private Long id;
     private String name;
-    private Long itemTagging;
-    private int quantityAvailable;
-    private int quantityLend;
+    private Long sipacCode;
+    private int quantity;
+    private String type;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private boolean active;
+    private boolean available;
 
     @Override
     public boolean equals(Object o) {
@@ -31,12 +31,12 @@ public class ItemResponseDTO {
             return false;
         ItemResponseDTO that = (ItemResponseDTO) o;
         return Objects.equals(id, that.id) && Objects.equals(name, that.name)
-                && Objects.equals(itemTagging, that.itemTagging);
+                && Objects.equals(sipacCode, that.sipacCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, itemTagging);
+        return Objects.hash(id, name, sipacCode);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ItemResponseDTO {
         return "ItemResponseDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", itemTagging=" + itemTagging +
+                ", sipacCode=" + sipacCode +
                 '}';
     }
 }

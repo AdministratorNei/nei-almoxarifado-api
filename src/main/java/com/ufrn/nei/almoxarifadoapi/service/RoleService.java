@@ -1,8 +1,6 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
-import com.ufrn.nei.almoxarifadoapi.dto.role.RoleResponseDto;
 import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
-import com.ufrn.nei.almoxarifadoapi.dto.mapper.RoleMapper;
 import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
 import com.ufrn.nei.almoxarifadoapi.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,20 +17,21 @@ public class RoleService {
     private RoleRepository roleRepository;
 
     @Transactional
-    public RoleResponseDto save(RoleEntity roleEntity) {
-        return RoleMapper.toResponseDto(roleRepository.save(roleEntity));
+    public RoleEntity save(RoleEntity roleEntity) {
+        RoleEntity role = roleRepository.save(roleEntity);
+        return role;
     }
 
     @Transactional(readOnly = true)
-    public RoleResponseDto findById(Long id) {
-        return RoleMapper.toResponseDto(roleRepository.findById(id).orElseThrow(
-                () -> new RuntimeException(String.format("Role não encontrada com o id: %d", id))
-        ));
+    public RoleEntity findById(Long id) {
+        RoleEntity role = roleRepository.findById(id).orElseThrow(
+                () -> new RuntimeException(String.format("Role não encontrada com o id: %d", id)));
+        return role;
     }
 
     @Transactional(readOnly = true)
-    public List<RoleResponseDto> findAllRoles() {
-        return RoleMapper.toListResponseDto(roleRepository.findAll());
+    public List<RoleEntity> findAllRoles() {
+        return roleRepository.findAll();
     }
 
     @Transactional
@@ -40,10 +39,10 @@ public class RoleService {
         try {
             if (roleRepository.existsById(id)) {
                 roleRepository.deleteById(id);
-                return Boolean.TRUE;
+                return true;
             } else {
                 log.warn("Tentativa de excluir um registro inexistente com ID: {}", id);
-                return Boolean.FALSE;
+                return false;
             }
         } catch (IllegalArgumentException ex) {
             log.error("Erro ao excluir registro com ID: {}", id, ex);
@@ -52,11 +51,11 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleResponseDto updateRoleById(Long id, RoleUpdateDto newRole) {
-        RoleEntity role = RoleMapper.toRole(findById(id));
+    public RoleEntity updateRoleById(Long id, RoleUpdateDto newRole) {
+        RoleEntity role = findById(id);
         role.setRole(newRole.getNewRole());
         save(role);
 
-        return RoleMapper.toResponseDto(role);
+        return role;
     }
 }

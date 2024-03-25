@@ -17,8 +17,8 @@ public interface RecordRepository extends JpaRepository<RecordEntity, Long> {
     List<RecordEntity> findByUsers(Long id, String name, String email, String role);
 
     @Query("SELECT ue FROM RecordEntity ue WHERE " +
-           "(ue.item.id = :id) OR " +
-           "CAST(ue.item.itemTagging AS string) LIKE CONCAT('%', CAST(:itemTagging AS string), '%') OR " +
-           "LOWER(ue.item.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<RecordEntity> findByItens(Long id, Long itemTagging, String name);
+            "(ue.item.id = :id) OR " +
+            "CAST(ue.item.sipacCode AS string) LIKE CONCAT('%', CAST(:sipacCode AS string), '%') OR " +
+            "LOWER(ue.item.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<RecordEntity> findByItens(Long id, Long sipacCode, String name);
 }

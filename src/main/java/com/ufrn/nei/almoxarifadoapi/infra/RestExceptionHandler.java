@@ -4,6 +4,8 @@ import com.ufrn.nei.almoxarifadoapi.exception.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -61,7 +63,8 @@ public class RestExceptionHandler {
         }
 
         @ExceptionHandler(NotAvailableQuantityException.class)
-        public ResponseEntity<RestErrorMessage> handleQuantityNotAvailableToLend(NotAvailableQuantityException exception,
+        public ResponseEntity<RestErrorMessage> handleQuantityNotAvailableToLend(
+                        NotAvailableQuantityException exception,
                         HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
 
@@ -71,19 +74,27 @@ public class RestExceptionHandler {
 
         @ExceptionHandler(PasswordInvalidException.class)
         public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(PasswordInvalidException exception,
-                                                                               HttpServletRequest request) {
-            log.info("API ERROR - ", exception);
+                        HttpServletRequest request) {
+                log.info("API ERROR - ", exception);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
         }
 
         @ExceptionHandler(OperationErrorException.class)
         public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(OperationErrorException exception,
-                                                                               HttpServletRequest request) {
+                        HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
+                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<RestErrorMessage> handleErrorOnDatabase(DataIntegrityViolationException exception,
+                        HttpServletRequest request) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST,
+                                                exception.getLocalizedMessage()));
         }
 }

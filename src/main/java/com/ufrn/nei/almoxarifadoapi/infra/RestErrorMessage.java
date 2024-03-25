@@ -2,7 +2,6 @@ package com.ufrn.nei.almoxarifadoapi.infra;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
-import lombok.ToString;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;

@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.other.QuantityUpdateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
+import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.service.ItemService;
 
 import jakarta.validation.Valid;
@@ -36,7 +37,9 @@ public class ItemController {
         @GetMapping
         @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
         public ResponseEntity<List<ItemResponseDTO>> getAllItems() {
-                List<ItemResponseDTO> items = itemService.findAllItems();
+                List<ItemEntity> data = itemService.findAllItems();
+
+                List<ItemResponseDTO> items = ItemMapper.toListResponseDTO(data);
 
                 return ResponseEntity.status(HttpStatus.OK).body(items);
         }
@@ -48,7 +51,9 @@ public class ItemController {
         @GetMapping("/{id}")
         @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
         public ResponseEntity<ItemResponseDTO> getItem(@PathVariable Long id) {
-                ItemResponseDTO item = itemService.findById(id);
+                ItemEntity data = itemService.findById(id);
+
+                ItemResponseDTO item = ItemMapper.toResponseDTO(data);
 
                 return ResponseEntity.status(HttpStatus.OK).body(item);
         }
@@ -60,7 +65,9 @@ public class ItemController {
         @PostMapping
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ItemResponseDTO> createItem(@RequestBody @Valid ItemCreateDTO itemDTO) {
-                ItemResponseDTO item = itemService.createItem(itemDTO);
+                ItemEntity data = itemService.createItem(itemDTO);
+
+                ItemResponseDTO item = ItemMapper.toResponseDTO(data);
 
                 return ResponseEntity.status(HttpStatus.CREATED).body(item);
         }
@@ -73,21 +80,9 @@ public class ItemController {
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ItemResponseDTO> updateItem(@PathVariable Long id,
                         @RequestBody @Valid ItemUpdateDTO itemDTO) {
-                ItemResponseDTO item = itemService.updateItem(id, itemDTO);
+                ItemEntity data = itemService.updateItem(id, itemDTO);
 
-                return ResponseEntity.status(HttpStatus.OK).body(item);
-        }
-
-        @PutMapping("/lend/{id}")
-        @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<ItemResponseDTO> updateItemQuantity(@PathVariable Long id,
-                        @RequestBody @Valid QuantityUpdateDTO dto) {
-                ItemResponseDTO item;
-                if (dto.getToLend()) {
-                        item = itemService.sumLendQuantity(id, dto.getItems());
-                } else {
-                        item = itemService.subtractLendQuantity(id, dto.getItems());
-                }
+                ItemResponseDTO item = ItemMapper.toResponseDTO(data);
 
                 return ResponseEntity.status(HttpStatus.OK).body(item);
         }

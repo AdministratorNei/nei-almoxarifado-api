@@ -1,6 +1,5 @@
 package com.ufrn.nei.almoxarifadoapi.dto.user;
 
-import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +19,13 @@ public class UserRecordDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         UserRecordDTO that = (UserRecordDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(email, that.email) && Objects.equals(role, that.role);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(email, that.email)
+                && Objects.equals(role, that.role);
     }
 
     @Override

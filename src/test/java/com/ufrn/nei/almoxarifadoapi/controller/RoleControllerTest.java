@@ -40,7 +40,6 @@ public class RoleControllerTest {
 
     private RoleResponseDto roleResponseDto;
 
-
     @BeforeEach
     void setup() {
         roleResponseDto = new RoleResponseDto(1L, "Cliente");
@@ -51,7 +50,7 @@ public class RoleControllerTest {
     void testCreateRole() throws Exception {
         RoleCreateDto roleCreateDto = new RoleCreateDto("Cliente");
 
-        when(roleService.save(RoleMapper.toRole(roleCreateDto))).thenReturn(roleResponseDto);
+        when(roleService.save(RoleMapper.toRole(roleCreateDto))).thenReturn(RoleMapper.toRole(roleResponseDto));
 
         mockMvc.perform(post("/api/v1/roles")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -66,13 +65,13 @@ public class RoleControllerTest {
 
     @Test
     void testFindRoleById() throws Exception {
-        when(roleService.findById(1L)).thenReturn(roleResponseDto);
+        when(roleService.findById(1L)).thenReturn(RoleMapper.toRole(roleResponseDto));
 
         mockMvc.perform(get("/api/v1/roles/1"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.role").value("Cliente"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.role").value("Cliente"));
 
         verify(roleService, times(1)).findById(1L);
     }
@@ -81,13 +80,13 @@ public class RoleControllerTest {
     void testFindAllRoles() throws Exception {
         List<RoleResponseDto> mockRoles = Collections.singletonList(roleResponseDto);
 
-        when(roleService.findAllRoles()).thenReturn(mockRoles);
+        when(roleService.findAllRoles()).thenReturn(RoleMapper.toListRole(mockRoles));
 
         mockMvc.perform(get("/api/v1/roles"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$[0].id").value(1))
-            .andExpect(jsonPath("$[0].role").value("Cliente"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].role").value("Cliente"));
 
         verify(roleService, times(1)).findAllRoles();
     }
@@ -96,11 +95,11 @@ public class RoleControllerTest {
     public void testUpdateRole() throws Exception {
         RoleUpdateDto roleUpdateDto = new RoleUpdateDto("Cliente");
 
-        when(roleService.updateRoleById(1L, roleUpdateDto)).thenReturn(roleResponseDto);
+        when(roleService.updateRoleById(1L, roleUpdateDto)).thenReturn(RoleMapper.toRole(roleResponseDto));
 
         mockMvc.perform(put("/api/v1/roles/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(roleUpdateDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(roleUpdateDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))

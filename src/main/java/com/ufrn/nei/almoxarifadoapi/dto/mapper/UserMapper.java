@@ -4,14 +4,12 @@ import com.ufrn.nei.almoxarifadoapi.dto.user.UserCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserRecordDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.UserEntity;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 public class UserMapper {
     public static UserResponseDTO toResponseDTO(UserEntity userEntity) {
         String role = refactorRoleName(userEntity.getRole().getRole());

@@ -1,6 +1,5 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
-import com.ufrn.nei.almoxarifadoapi.dto.role.RoleResponseDto;
 import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
 import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
 import com.ufrn.nei.almoxarifadoapi.repository.RoleRepository;
@@ -40,7 +39,7 @@ class RoleServiceTest {
     void saveRoleTest() {
         when(roleRepository.save(role)).thenReturn(role);
 
-        RoleResponseDto savedRole = roleService.save(role);
+        RoleEntity savedRole = roleService.save(role);
 
         verify(roleRepository, times(1)).save(role);
 
@@ -58,7 +57,7 @@ class RoleServiceTest {
 
         when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
 
-        RoleResponseDto foundRole = roleService.findById(roleId);
+        RoleEntity foundRole = roleService.findById(roleId);
 
         verify(roleRepository, times(1)).findById(roleId);
 
@@ -74,7 +73,7 @@ class RoleServiceTest {
     void testFindAllRoles() {
         when(roleRepository.findAll()).thenReturn(Collections.singletonList(role));
 
-        List<RoleResponseDto> roleResponse = roleService.findAllRoles();
+        List<RoleEntity> roleResponse = roleService.findAllRoles();
 
         verify(roleRepository, times(1)).findAll();
 
@@ -93,7 +92,7 @@ class RoleServiceTest {
 
         when(roleRepository.save(any(RoleEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        RoleResponseDto response = roleService.updateRoleById(role.getId(), newRole);
+        RoleEntity response = roleService.updateRoleById(role.getId(), newRole);
 
         verify(roleRepository, times(1)).findById(role.getId());
         verify(roleRepository, times(1)).save(any(RoleEntity.class));

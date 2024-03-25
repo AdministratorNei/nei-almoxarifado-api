@@ -4,19 +4,19 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.ufrn.nei.almoxarifadoapi.exception.CreateEntityException;
 import com.ufrn.nei.almoxarifadoapi.exception.EntityNotFoundException;
 import com.ufrn.nei.almoxarifadoapi.exception.ItemNotActiveException;
 import com.ufrn.nei.almoxarifadoapi.exception.NotAvailableQuantityException;
+import com.ufrn.nei.almoxarifadoapi.exception.OperationErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
+import com.ufrn.nei.almoxarifadoapi.enums.ItemQuantityOperation;
 import com.ufrn.nei.almoxarifadoapi.repository.ItemRepository;
 
 import jakarta.transaction.Transactional;
@@ -27,105 +27,125 @@ public class ItemService {
     private ItemRepository itemRepository;
 
     @Transactional
-    public List<ItemResponseDTO> findAllItems() {
-        return ItemMapper.toListResponseDTO(itemRepository.findAllByActiveTrue());
+    public List<ItemEntity> findAllItems() {
+        return itemRepository.findAllByAvailableTrue();
     }
 
     @Transactional
-    public ItemResponseDTO findById(Long id) {
-        return ItemMapper.toResponseDTO(itemRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Item não encontrado com id=%s", id))));
+    public ItemEntity findById(Long id) {
+        ItemEntity item = itemRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Item não encontrado com id=%s", id)));
+
+        return item;
     }
 
     @Transactional
-    public ItemEntity findByTagging(Long itemTagging) {
-        return itemRepository.findByItemTagging(itemTagging).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Item não encontrado com tagging=%s", itemTagging)));
+    public ItemEntity findByName(String name) {
+        ItemEntity item = itemRepository.findByName(name).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Item não encontrado com nome=%s", name)));
+
+        return item;
     }
 
     @Transactional
-    public ItemResponseDTO createItem(ItemCreateDTO data) {
-        ItemEntity item = ItemMapper.toItem(data);
+    public ItemEntity findByCode(Long sipacCode) {
+        ItemEntity item = itemRepository.findBySipacCode(sipacCode).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Item não encontrado com código=%s", sipacCode)));
 
-        if (item == null) {
-            throw new CreateEntityException("Erro na criação da entidade item");
+        return item;
+    }
+
+    @Transactional
+    public ItemEntity createItem(ItemCreateDTO data) {
+        if (data == null) {
+            throw new OperationErrorException("Dados para criação de item não podem ser nulos!");
         }
 
+        // Para ter um valor padrão.
+        ItemEntity item = ItemMapper.toItem(data);
+
+        // Busca por um item previamente cadastrado para, ao invés de cadastrar
+        // novamente, atualizar quantidade.
         try {
-            item = findByTagging(data.getItemTagging());
+            if (data.getSipacCode() != null) {
+                item = findByCode(data.getSipacCode());
 
-            item.setQuantityAvailable(item.getQuantityAvailable() + data.getQuantityAvailable());
-        } catch (EntityNotFoundException ignored) {}
+                if (data.getName().equalsIgnoreCase(item.getName())) {
+                    setItemQuantity(item, data.getQuantity(), ItemQuantityOperation.SUM);
+                } else {
+                    throw new OperationErrorException("Encontrado outro item com nome diferente e mesmo código SIPAC.");
+                }
+            } else {
+                item = findByName(data.getName());
+                setItemQuantity(item, data.getQuantity(), ItemQuantityOperation.SUM);
+            }
 
-        item.setActive(true);
+            item.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        } catch (EntityNotFoundException ex) {
+        }
+
+        item.setAvailable(true);
         itemRepository.save(item);
 
-        return ItemMapper.toResponseDTO(item);
+        return item;
+    }
+
+    private void setItemQuantity(ItemEntity item, int quantity, ItemQuantityOperation operation) {
+        if (quantity <= 0 || item == null) {
+            throw new OperationErrorException();
+        }
+
+        switch (operation) {
+            case SUM:
+                item.setQuantity(quantity + item.getQuantity());
+                item.setAvailable(true);
+                break;
+            case SUBTRACT:
+                if (quantity > item.getQuantity()) {
+                    throw new OperationErrorException("Não há itens disponiveis suficientes para realizar a exclusão.");
+                } else {
+                    item.setQuantity(item.getQuantity() - quantity);
+                }
+
+                if (item.getQuantity() == 0) {
+                    item.setAvailable(false);
+                }
+
+                break;
+            default:
+                throw new OperationErrorException("Não foi definida uma operação.");
+        }
     }
 
     @Transactional
-    public ItemResponseDTO updateItem(Long id, ItemUpdateDTO data) {
-        ItemEntity item = ItemMapper.toItem(findById(id));
+    public ItemEntity updateItem(Long id, ItemUpdateDTO data) {
+        ItemEntity item = findById(id);
 
         if (data.getName() != null && !data.getName().isBlank()) {
             item.setName(data.getName());
         }
-        if (data.getItemTagging() != null) {
-            item.setItemTagging(data.getItemTagging());
+        if (data.getSipacCode() != null) {
+            item.setSipacCode(data.getSipacCode());
         }
         item.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         itemRepository.save(item);
-        return ItemMapper.toResponseDTO(item);
+        return item;
     }
 
     @Transactional
-    public ItemResponseDTO sumLendQuantity(Long id, Integer itemsToLend) {
-        ItemEntity item = ItemMapper.toItem(findById(id));
+    public void deleteItem(Long id, int quantity) {
+        ItemEntity item = findById(id);
 
-        if (itemsToLend <= item.getQuantityAvailable()) {
-            item.setQuantityLend(item.getQuantityLend() + itemsToLend);
-            item.setQuantityAvailable(item.getQuantityAvailable() - itemsToLend);
-
-            itemRepository.save(item);
-            return ItemMapper.toResponseDTO(item);
-        } else {
-            throw new NotAvailableQuantityException("Não há itens suficientes para realizar este empréstimo.");
-        }
-    }
-
-    @Transactional
-    public ItemResponseDTO subtractLendQuantity(Long id, Integer itemsToLend) {
-        ItemEntity item = ItemMapper.toItem(findById(id));
-
-        // Caso a quantidade de itens emprestados enviada seja maior que a cadastrada
-        if (itemsToLend > item.getQuantityLend()) {
-            int diff = itemsToLend - item.getQuantityLend();
-            itemsToLend -= diff;
-        }
-
-        item.setQuantityLend(item.getQuantityLend() - itemsToLend);
-        item.setQuantityAvailable(item.getQuantityAvailable() + itemsToLend);
-
-        itemRepository.save(item);
-        return ItemMapper.toResponseDTO(item);
-    }
-
-    @Transactional
-    public void deleteItem(Long id, Integer quantity) {
-        ItemEntity item = ItemMapper.toItem(findById(id));
-
-        if (item.getActive().equals(false)) {
+        if (item.getAvailable().equals(false)) {
             throw new ItemNotActiveException();
-        } else if (quantity > item.getQuantityAvailable()) {
+        }
+
+        if (quantity > item.getQuantity()) {
             throw new NotAvailableQuantityException("Não há itens disponiveis suficientes para realizar a exclusão.");
         }
 
-        item.setQuantityAvailable(item.getQuantityAvailable() - quantity);
-
-        if (item.getQuantityAvailable() == 0 && item.getQuantityLend() == 0) {
-            item.setActive(false);
-        }
+        setItemQuantity(item, quantity, ItemQuantityOperation.SUBTRACT);
 
         itemRepository.save(item);
     }

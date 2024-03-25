@@ -10,8 +10,9 @@ import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 
 @Repository
 public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
-    List<ItemEntity> findAllByActiveTrue();
+    List<ItemEntity> findAllByAvailableTrue();
 
-    Optional<ItemEntity> findByItemTagging(Long itemTagging);
+    Optional<ItemEntity> findBySipacCode(Long sipacCode);
 
+    Optional<ItemEntity> findByName(String name);
 }

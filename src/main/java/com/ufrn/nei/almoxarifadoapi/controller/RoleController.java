@@ -3,6 +3,7 @@ package com.ufrn.nei.almoxarifadoapi.controller;
 import com.ufrn.nei.almoxarifadoapi.dto.role.RoleCreateDto;
 import com.ufrn.nei.almoxarifadoapi.dto.role.RoleResponseDto;
 import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
+import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RoleMapper;
 import com.ufrn.nei.almoxarifadoapi.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,31 +23,38 @@ public class RoleController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoleResponseDto> createRole(@RequestBody RoleCreateDto roleCreateDto) {
-        RoleResponseDto role = roleService.save(RoleMapper.toRole(roleCreateDto));
+        RoleEntity role = roleService.save(RoleMapper.toRole(roleCreateDto));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(role);
+        RoleResponseDto response = RoleMapper.toResponseDto(role);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoleResponseDto> findRoleById(@PathVariable Long id) {
-        RoleResponseDto role = roleService.findById(id);
+        RoleEntity role = roleService.findById(id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(role);
+        RoleResponseDto response = RoleMapper.toResponseDto(role);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RoleResponseDto>> findAllRoles() {
-        List<RoleResponseDto> roles = roleService.findAllRoles();
+        List<RoleEntity> roles = roleService.findAllRoles();
 
-        return ResponseEntity.status(HttpStatus.OK).body(roles);
+        List<RoleResponseDto> response = RoleMapper.toListResponseDto(roles);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         if (roleService.deleteById(id)) {
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -55,8 +63,10 @@ public class RoleController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoleResponseDto> updateRole(@PathVariable Long id, @RequestBody RoleUpdateDto updateRole) {
-        RoleResponseDto role = roleService.updateRoleById(id, updateRole);
+        RoleEntity role = roleService.updateRoleById(id, updateRole);
 
-        return ResponseEntity.status(HttpStatus.OK).body(role);
+        RoleResponseDto response = RoleMapper.toResponseDto(role);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
