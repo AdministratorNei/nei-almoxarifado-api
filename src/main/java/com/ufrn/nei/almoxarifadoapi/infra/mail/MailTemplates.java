@@ -2,7 +2,6 @@ package com.ufrn.nei.almoxarifadoapi.infra.mail;
 
 import com.ufrn.nei.almoxarifadoapi.utils.RefactorDate;
 
-import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -174,6 +172,28 @@ public class MailTemplates {
     "<h3> Código de redefinição de senha </h3> <br> <span> Seu código para a redefinição de senha é <strong>"
             + token + "</strong>. Se você não fez essa solicitação, pode ignorar esse e-mail com segurança.",
             true);
+
+    return helper;
+  }
+
+  public MimeMessageHelper buildMailMessageLowStock(String[] sendTo, String itemName, Integer currentQuantity,
+                                                    Integer idealAmount, MimeMessage mime) throws MessagingException {
+    MimeMessageHelper helper = new MimeMessageHelper(mime, true);
+
+    String subject = "Aviso: Necessário reposição de item";
+    String text = String.format("""
+          <p>Olá,</p>
+          <p>A quantidade do item <strong>%s</strong> está abaixo da quantidade ideal estabelecida.</p>
+          <ul>
+              <li><strong>Quantidade Atual: </strong>%d</li>
+              <li><strong>Quantidade Ideal: </strong>%d</li>
+          </ul>
+          """, itemName, currentQuantity, idealAmount);
+
+
+    helper.setTo(sendTo);
+    helper.setSubject(subject);
+    helper.setText(text, true);
 
     return helper;
   }

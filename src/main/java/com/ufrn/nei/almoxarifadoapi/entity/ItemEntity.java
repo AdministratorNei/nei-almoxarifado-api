@@ -28,14 +28,17 @@ public class ItemEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "nome", nullable = false, unique = false, length = 255)
+    @Column(name = "nome", nullable = false)
     private String name;
 
-    @Column(name = "codigo_sipac", nullable = true, unique = true)
+    @Column(name = "codigo_sipac", unique = true)
     private Long sipacCode;
 
     @Column(name = "quantidade", nullable = false)
     private int quantity;
+
+    @Column(name = "quantidade_minima_estoque")
+    private int minimumStockLevel;
 
     @Column(name = "tipo_unitario")
     private String type;

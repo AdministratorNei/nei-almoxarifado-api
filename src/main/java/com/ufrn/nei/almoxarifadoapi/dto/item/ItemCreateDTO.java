@@ -21,6 +21,8 @@ public class ItemCreateDTO {
     @NotNull
     @Positive
     private int quantity;
+    @PositiveOrZero
+    private Integer idealAmount = 0;
     @NotBlank
     private String type;
     @PositiveOrZero

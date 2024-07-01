@@ -2,9 +2,11 @@ package com.ufrn.nei.almoxarifadoapi.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateIdealAmountDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.RecordEntity;
+import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.UserEntity;
 import com.ufrn.nei.almoxarifadoapi.exception.EntityNotFoundException;
 import com.ufrn.nei.almoxarifadoapi.exception.ItemNotActiveException;
@@ -12,6 +14,7 @@ import com.ufrn.nei.almoxarifadoapi.exception.NotAvailableQuantityException;
 import com.ufrn.nei.almoxarifadoapi.exception.OperationErrorException;
 
 import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtAuthenticationContext;
+import com.ufrn.nei.almoxarifadoapi.infra.mail.MailService;
 import com.ufrn.nei.almoxarifadoapi.repository.projection.ItemProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,14 @@ public class ItemService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private RoleService roleService;
+
+    private final String ROLE_ADMIN = "ROLE_ADMIN";
 
     @Transactional(readOnly = true)
     public Page<ItemProjection> findAllItems(Pageable pageable) {
@@ -163,8 +174,42 @@ public class ItemService {
             throw new NotAvailableQuantityException("Quantidade de itens disponiveis insuficientes.");
         }
 
+        // Os e-mails são enviados quando a quantidade do item é menor que a quantidade ideal. Entretanto,
+        // o e-email só será enviado uma vez, ou seja, se o item já estava com a quantidade atual menor
+        // que a quantidade ideal, o e-mail não será enviado novamente.
+        // O e-mail só será enviado se após a diminuição do item pelo método 'setItemQuantity()' satisfazer a condição
+        // descrita acima.
+
+        int quantityBeforeUpdate = item.getQuantity();
+        Boolean sendMail = quantityBeforeUpdate <= item.getMinimumStockLevel() ? Boolean.FALSE : Boolean.TRUE;
+
         setItemQuantity(item, quantity, ItemQuantityOperation.SUBTRACT);
 
+        sendMailLowStock(item, sendMail);
+
         itemRepository.save(item);
+    }
+
+    @Transactional
+    public void updateIdealAmount(Long id, ItemUpdateIdealAmountDTO dto) {
+        ItemEntity item = findById(id);
+        item.setMinimumStockLevel(dto.getIdealAmount());
+
+        sendMailLowStock(item, Boolean.TRUE);
+
+        itemRepository.save(item);
+    }
+
+    private void sendMailLowStock(ItemEntity item, Boolean sendMail) {
+        if (item.getQuantity() <= item.getMinimumStockLevel() && sendMail) {
+            RoleEntity roleAdmin = roleService.findByRoleName(ROLE_ADMIN).get();
+            List<UserEntity> users = userService.findAllByRole(roleAdmin);
+
+            String[] usersEmail = users.stream()
+                    .map(UserEntity::getEmail) // Obtém o email de cada UserEntity
+                    .toArray(String[]::new);
+
+            mailService.sendMailLowStock(usersEmail, item.getName(), item.getQuantity(), item.getMinimumStockLevel());
+        }
     }
 }
