@@ -1,6 +1,5 @@
 package com.ufrn.nei.almoxarifadoapi.controller;
 
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.PageableMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.UserMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.pageable.PageableDTO;
@@ -8,10 +7,7 @@ import com.ufrn.nei.almoxarifadoapi.dto.user.UserCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserForgotPasswordUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserPasswordUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserResponseDTO;
-import com.ufrn.nei.almoxarifadoapi.entity.RecoveryTokenEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.UserEntity;
-import com.ufrn.nei.almoxarifadoapi.exception.ConflictUpdatePasswordException;
-import com.ufrn.nei.almoxarifadoapi.exception.EntityNotFoundException;
 import com.ufrn.nei.almoxarifadoapi.infra.RestErrorMessage;
 import com.ufrn.nei.almoxarifadoapi.repository.projection.UserProjection;
 import com.ufrn.nei.almoxarifadoapi.service.UserService;
@@ -25,8 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -185,17 +179,14 @@ public class UserController {
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
                         @ApiResponse(responseCode = "400", description = "Erro na validação da senha",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
-                        @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                         @ApiResponse(responseCode = "403", description = "Erro. O usuário passou o ID de outro usuário.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                         @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
-    })
-
-        @PutMapping("updateForgotPassword/{id}")
-        public ResponseEntity<Void> updateForgotPassword(@RequestBody @Valid UserForgotPasswordUpdateDTO passwordUpdateDTO, @PathVariable Long id) { 
-            userService.updatePassword(id, passwordUpdateDTO.getRecoveryToken(),
+        })
+        @PutMapping("updateForgotPassword/{email}")
+        public ResponseEntity<Void> updateForgotPassword(@RequestBody @Valid UserForgotPasswordUpdateDTO passwordUpdateDTO, @PathVariable String email) {
+            userService.updatePassword(email, passwordUpdateDTO.getRecoveryToken(),
                         passwordUpdateDTO.getNewPassword(), passwordUpdateDTO.getConfirmPassword());
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
