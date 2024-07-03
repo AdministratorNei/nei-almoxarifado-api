@@ -75,6 +75,11 @@ public class UserService {
     return userRepository.findAllPageable(pageable);
   }
 
+  @Transactional(readOnly = true)
+  public List<UserEntity> findAllByRole(RoleEntity role) {
+    return userRepository.findAllByRole(role);
+  }
+
   @Transactional
   public void updatePassword(Long id, String token, String newPassword, String confirmPassword) throws EntityNotFoundException {
       Optional<RecoveryTokenEntity> userRecToken = this.getRecoveryTokenUser(id);

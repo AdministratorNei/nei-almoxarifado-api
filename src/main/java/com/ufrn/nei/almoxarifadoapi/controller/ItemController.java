@@ -1,6 +1,6 @@
 package com.ufrn.nei.almoxarifadoapi.controller;
 
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemDeleteDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.*;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.PageableMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.pageable.PageableDTO;
 import com.ufrn.nei.almoxarifadoapi.infra.RestErrorMessage;
@@ -22,9 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemResponseDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.service.ItemService;
@@ -152,6 +149,26 @@ public class ItemController {
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> deleteItem(@PathVariable Long id, @RequestBody @Valid ItemDeleteDTO deleteDTO) {
                 itemService.deleteOrConsumeItem(id, deleteDTO.getQuantity());
+
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        @Operation(summary = "Atualizará a quantidade ideal de um item.",
+                description = "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
+                security = @SecurityRequirement(name = "security"),
+                responses = {
+                        @ApiResponse(responseCode = "204", description = "Item atualizado com sucesso.",
+                                content = @Content(mediaType = "application/json")),
+                        @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+                        @ApiResponse(responseCode = "404", description = "Erro ao remover item. Item já consta como inativo ou item não existe.",
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
+                })
+        @PatchMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> updateIdealAmount(@PathVariable Long id,
+                                                      @RequestBody @Valid ItemUpdateIdealAmountDTO updateDTO) {
+                itemService.updateIdealAmount(id, updateDTO);
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
