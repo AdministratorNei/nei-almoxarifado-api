@@ -81,14 +81,16 @@ public class UserService {
   }
 
   @Transactional
-  public void updatePassword(Long id, String token, String newPassword, String confirmPassword) throws EntityNotFoundException {
-      Optional<RecoveryTokenEntity> userRecToken = this.getRecoveryTokenUser(id);
+  public void updatePassword(String email, String token, String newPassword, String confirmPassword) throws EntityNotFoundException {
+      UserEntity user = findByEmail(email);
+      Long userId = user.getId();
 
+      Optional<RecoveryTokenEntity> userRecToken = this.getRecoveryTokenUser(userId);
       RecoveryTokenEntity storedToken = userRecToken.isEmpty() ? null : userRecToken.get();
 
-      if (storedToken == null || storedToken.isUsed())
-        throw new EntityNotFoundException("Não há token de recuperação válido para o usuário de id " + id);
-      else if (!storedToken.getToken().equals(token)) {
+      if (storedToken == null || storedToken.isUsed()) {
+        throw new EntityNotFoundException("Não há token de recuperação válido para o usuário de email " + user.getEmail());
+      } else if (!storedToken.getToken().equals(token)) {
         throw new InvalidRecoveryTokenException("Token de recuperação enviado é diferente do armazenado para o usuário.");
       }
 
@@ -96,11 +98,10 @@ public class UserService {
         throw new PasswordInvalidException("Nova senha não é igual a confirma senha");
       }
 
-      UserEntity user = findById(id);
       user.setPassword(passwordEncoder.encode(newPassword));
-
       storedToken.setUsed(true);
       storedToken.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
       tokenRepository.save(storedToken);
   }
 
