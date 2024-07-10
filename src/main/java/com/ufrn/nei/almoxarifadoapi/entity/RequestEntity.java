@@ -40,6 +40,9 @@ public class RequestEntity implements Serializable {
     @Column(name = "quantidade", nullable = false)
     private Long quantity;
 
+    @Column(name = "comentário_admin")
+    private String adminComment;
+
     @ManyToOne
     @JsonManagedReference
     @JoinColumn(name = "user_id", nullable = false)
