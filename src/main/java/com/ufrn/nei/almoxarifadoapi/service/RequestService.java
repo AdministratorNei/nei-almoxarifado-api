@@ -84,7 +84,7 @@ public class RequestService {
             UserEntity user = request.getUser();
             ItemEntity item = request.getItem();
             mailService.sendMailRequestAcceptedAsync(user.getEmail(), user.getName(),
-                    item.getName(), request.getUpdatedAt(), request.getQuantity());
+                    item.getName(), request.getUpdatedAt(), request.getQuantity(), comment);
 
             return Boolean.TRUE;
         }
@@ -102,7 +102,7 @@ public class RequestService {
             UserEntity user = request.getUser();
             ItemEntity item = request.getItem();
             mailService.sendMailRequestDeniedAsync(user.getEmail(), user.getName(),
-                    item.getName(), request.getUpdatedAt(), request.getQuantity());
+                    item.getName(), request.getUpdatedAt(), request.getQuantity(), comment);
 
             return Boolean.TRUE;
         }
