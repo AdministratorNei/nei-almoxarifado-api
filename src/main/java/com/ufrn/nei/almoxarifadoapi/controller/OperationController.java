@@ -33,6 +33,7 @@ public class OperationController {
         @Operation(summary = "Criar registro de consumo.",
                 description = "Consumirá um item. Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
                 security = @SecurityRequirement(name = "security"),
+                deprecated = true,
                 responses = {
                         @ApiResponse(responseCode = "200", description = "Consumo criado com sucesso.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RecordResponseDTO.class))),
