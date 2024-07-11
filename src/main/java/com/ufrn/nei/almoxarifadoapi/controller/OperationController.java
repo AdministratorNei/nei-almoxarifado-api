@@ -1,11 +1,13 @@
 package com.ufrn.nei.almoxarifadoapi.controller;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemDeleteDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RecordMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.RecordEntity;
 import com.ufrn.nei.almoxarifadoapi.infra.RestErrorMessage;
+import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtUserDetails;
 import com.ufrn.nei.almoxarifadoapi.service.OperationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,10 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Operações Itens", description = "Contém as operações para gerenciar os itens e persistir com a tabela registro")
 @RestController
@@ -87,10 +87,12 @@ public class OperationController {
                         @ApiResponse(responseCode = "500", description = "Erro ao excluir item. Quantidade de itens disponíveis insuficientes.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                 })
-        @PostMapping("/exclusao")
+        @DeleteMapping("/deletar/{id}")
         @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<RecordResponseDTO> toDelete(@RequestBody @Valid RecordCreateDTO createDTO) {
-                RecordEntity record = operationService.toDelete(createDTO);
+        public ResponseEntity<RecordResponseDTO> toDelete(@PathVariable Long id,
+                                                          @RequestBody @Valid ItemDeleteDTO deleteDTO,
+                                                          @AuthenticationPrincipal JwtUserDetails userDetails) {
+                RecordEntity record = operationService.toDelete(id, deleteDTO, userDetails);
 
                 return ResponseEntity.status(HttpStatus.OK).body(RecordMapper.toResponseDTO(record));
         }
