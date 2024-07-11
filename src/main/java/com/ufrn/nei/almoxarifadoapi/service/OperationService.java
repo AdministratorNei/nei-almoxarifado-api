@@ -1,11 +1,13 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.RecordEntity;
 import com.ufrn.nei.almoxarifadoapi.enums.RecordOperationEnum;
 import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtAuthenticationContext;
+import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,5 +48,9 @@ public class OperationService {
         itemService.setLastRecord(itemService.findById(createDTO.getItemID()), record);
 
         return record;
+    }
+
+    public void toUpdate(Long id, ItemUpdateDTO itemUpdateDTO, JwtUserDetails userDetails) {
+        itemService.updateItem(id, itemUpdateDTO);
     }
 }
