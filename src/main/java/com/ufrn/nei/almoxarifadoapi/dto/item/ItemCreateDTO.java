@@ -22,7 +22,7 @@ public class ItemCreateDTO {
     @Positive
     private int quantity;
     @PositiveOrZero
-    private Integer idealAmount = 0;
+    private Integer minimumStockLevel = 0;
     @NotBlank
     private String type;
     @PositiveOrZero
