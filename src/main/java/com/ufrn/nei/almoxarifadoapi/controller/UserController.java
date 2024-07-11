@@ -215,7 +215,20 @@ public class UserController {
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-        
+
+
+        @Operation(summary = "Atualizar role de usuário",
+            description = "Mudará o encargo do usuário do sistema." +
+                    "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
+            security = @SecurityRequirement(name = "security"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso.",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Usuário ou role não encontrado.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
+            })
         @PatchMapping("/{email}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> updateRole(@PathVariable String email, @RequestBody RoleUpdateDto roleUpdateDto) {
