@@ -1,6 +1,7 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.UserMapper;
+import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.RecoveryTokenEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.RoleEntity;
@@ -54,6 +55,11 @@ public class UserService {
     mailService.sendMailUserCreatedAsync(user.getEmail(), user.getName());
 
     return user;
+  }
+
+  @Transactional
+  public UserEntity save(UserEntity userEntity) {
+      return userRepository.save(userEntity);
   }
 
   @Transactional(readOnly = true)
@@ -160,6 +166,17 @@ public class UserService {
     }
   }
 
+    @Transactional
+    public void updateRole(String email, RoleUpdateDto roleUpdateDto) {
+      UserEntity user = this.findByEmail(email);
+      RoleEntity role = roleService.findByRoleName(roleUpdateDto.getNewRole()).orElseThrow(
+              () -> new EntityNotFoundException(String.format("Role com o nome='%s' não foi encontrada",
+                      roleUpdateDto.getNewRole()))
+      );
+
+      user.setRole(role);
+      this.save(user);
+    }
   // Método(s) Auxiliar(es)
   private RoleEntity getRoleUser() {
     final String ROLE_USER = "ROLE_USER";
@@ -167,5 +184,6 @@ public class UserService {
     return roleService.findByRoleName(ROLE_USER).orElseThrow(
         () -> new EntityNotFoundException("Não foi possível encontrar a role de usuários"));
   }
+
 
 }

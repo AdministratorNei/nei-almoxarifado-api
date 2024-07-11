@@ -1,5 +1,6 @@
 package com.ufrn.nei.almoxarifadoapi.dto.role;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleUpdateDto {
+    @NotBlank
     private String newRole;
 
     @Override

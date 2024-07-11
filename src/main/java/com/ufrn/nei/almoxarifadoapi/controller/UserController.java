@@ -3,6 +3,7 @@ package com.ufrn.nei.almoxarifadoapi.controller;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.PageableMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.UserMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.pageable.PageableDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserForgotPasswordUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserPasswordUpdateDTO;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Usuários", description = "Contém todas as operações relativas aos recursos para criação, edição de senha, leitura e exclusão de um usuário")
@@ -212,5 +214,13 @@ public class UserController {
                 userService.deleteUser(id);
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        
+        @PatchMapping("/{email}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> updateRole(@PathVariable String email, @RequestBody RoleUpdateDto roleUpdateDto) {
+            userService.updateRole(email, roleUpdateDto);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 }
