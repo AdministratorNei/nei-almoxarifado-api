@@ -222,7 +222,7 @@ public class UserController {
                     "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
             security = @SecurityRequirement(name = "security"),
             responses = {
-                    @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso.",
+                    @ApiResponse(responseCode = "204", description = "Role trocada com sucesso.",
                             content = @Content(mediaType = "application/json")),
                     @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
