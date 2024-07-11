@@ -74,8 +74,9 @@ public class OperationController {
         }
 
         @Operation(summary = "Criar registro de exclusão.",
-                description = "Excluirá um item. Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
-                deprecated = true,
+                description = "Diminuirá a quantidade especificada do item, " +
+                        "se a quantidade chegar a zero após a chamada do método o item será deletado. " +
+                        "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
                 security = @SecurityRequirement(name = "security"),
                 responses = {
                         @ApiResponse(responseCode = "200", description = "Registro excluido com sucesso.",
