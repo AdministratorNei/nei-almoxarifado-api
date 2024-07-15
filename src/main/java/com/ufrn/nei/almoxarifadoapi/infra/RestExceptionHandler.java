@@ -28,15 +28,6 @@ public class RestExceptionHandler {
                                 .body(new RestErrorMessage(request, HttpStatus.NOT_FOUND, exception.getMessage()));
         }
 
-        @ExceptionHandler(CreateEntityException.class)
-        public ResponseEntity<RestErrorMessage> handleCreateEntityException(CreateEntityException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
-        }
-
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<RestErrorMessage> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
                         HttpServletRequest request) {
