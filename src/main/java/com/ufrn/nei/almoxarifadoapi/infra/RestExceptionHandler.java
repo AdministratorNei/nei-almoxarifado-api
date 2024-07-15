@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class RestExceptionHandler {
         @ExceptionHandler({EntityNotFoundException.class, ItemNotActiveException.class, StatusNotFoundException.class})
-        public ResponseEntity<RestErrorMessage> handleItemNotFoundException(EntityNotFoundException exception,
+        public ResponseEntity<RestErrorMessage> handleNotFoundStatus(RuntimeException exception,
                         HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
                 return ResponseEntity
