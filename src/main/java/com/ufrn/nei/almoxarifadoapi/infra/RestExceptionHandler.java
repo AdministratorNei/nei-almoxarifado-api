@@ -74,13 +74,6 @@ public class RestExceptionHandler {
                                 exception.getLocalizedMessage()));
         }
 
-        @ExceptionHandler(ConflictUpdatePasswordException.class)
-        public ResponseEntity<RestErrorMessage> handleMultipleIntentionsOnUpdatePassword(ConflictUpdatePasswordException exception, HttpServletRequest request) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new RestErrorMessage(request, HttpStatus.CONFLICT,
-                                exception.getLocalizedMessage()));
-        }
-
         @ExceptionHandler({MailSendException.class, MailAuthenticationException.class})
         public ResponseEntity<RestErrorMessage> handleErrorOnMailSender(Exception exception,
                                                                       HttpServletRequest request) {
