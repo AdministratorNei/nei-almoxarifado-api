@@ -82,8 +82,6 @@ public class MailTemplates {
       String itemName, Timestamp date, Long itemQuantity, String adminComment) {
       String formatDate = RefactorDate.refactorTimestamp(date);
 
-      adminComment = adminComment != null ? adminComment : "";
-
       String subject = "Sua solicitação foi aceita!";
       String text = String.format("""
           Olá %s,
@@ -94,10 +92,9 @@ public class MailTemplates {
           - Item: %s
           - Quantidade: %d
           - Hora da Aceitação: %s
-          - Comentário da administração: %s
-          
+          %s
           Obrigado por utilizar nosso sistema.""",
-          userName, itemName, itemName, itemQuantity, formatDate, adminComment);
+          userName, itemName, itemName, itemQuantity, formatDate, this.getAdminComment(adminComment));
 
       simpleMailMessage.setTo(userEmail);
       simpleMailMessage.setSubject(subject);
@@ -111,8 +108,6 @@ public class MailTemplates {
       String itemName, Timestamp date, Long itemQuantity, String adminComment) {
       String formatDate = RefactorDate.refactorTimestamp(date);
 
-      adminComment = adminComment != null ? adminComment : "";
-
       String subject = "Sua solicitação foi recusada.";
       String text = String.format("""
         Olá %s,
@@ -123,12 +118,12 @@ public class MailTemplates {
         - Item: %s
         - Quantidade: %d
         - Hora da recusa: %s
-        - Comentário da administração: %s
+        %s
         Por favor, entre em contato conosco para mais informações.
         
         Atenciosamente,
         Equipe do Almoxarifado""",
-        userName, itemName, itemName, itemQuantity, formatDate, "");
+        userName, itemName, itemName, itemQuantity, formatDate, this.getAdminComment(adminComment));
 
       simpleMailMessage.setTo(userEmail);
       simpleMailMessage.setSubject(subject);
@@ -201,5 +196,15 @@ public class MailTemplates {
     helper.setText(text, true);
 
     return helper;
+  }
+
+  private String getAdminComment(String adminComment) {
+      adminComment = adminComment != null ? adminComment : "";
+
+      if (adminComment.isEmpty()) {
+           return adminComment;
+      }
+
+      return String.format("- Comentário da administração: %s\n", adminComment);
   }
 }
