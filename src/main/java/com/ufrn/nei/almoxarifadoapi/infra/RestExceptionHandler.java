@@ -81,4 +81,13 @@ public class RestExceptionHandler {
                         .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
                                 exception.getCause().getLocalizedMessage()));
         }
+
+        @ExceptionHandler({Exception.class})
+        public ResponseEntity<RestErrorMessage> handleGenericException(Exception exception,
+                                                                        HttpServletRequest request) {
+                log.info("API ERROR - ", exception);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Erro ao processar requisição"));
+        }
 }
