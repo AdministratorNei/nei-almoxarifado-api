@@ -44,34 +44,18 @@ public class RestExceptionHandler {
                 log.info("API ERROR - ", exception);
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, "Campo(s) invalido(s)"));
+                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, "Requisição inválida"));
         }
 
-        @ExceptionHandler(PasswordInvalidException.class)
-        public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(PasswordInvalidException exception,
+        @ExceptionHandler({PasswordInvalidException.class, InvalidRecoveryTokenException.class,
+                OperationErrorException.class, NotAvailableQuantityException.class,
+                ModifyStatusException.class})
+        public ResponseEntity<RestErrorMessage> handleBadRequest(RuntimeException exception,
                         HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
-        }
-
-        @ExceptionHandler(InvalidRecoveryTokenException.class)
-        public ResponseEntity<RestErrorMessage> handleInvalidRecoveryToken(InvalidRecoveryTokenException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
-        }
-
-        @ExceptionHandler({OperationErrorException.class, NotAvailableQuantityException.class})
-        public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(OperationErrorException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage()));
         }
 
         @ExceptionHandler(DataIntegrityViolationException.class)
@@ -87,14 +71,6 @@ public class RestExceptionHandler {
                                                                       HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new RestErrorMessage(request, HttpStatus.UNAUTHORIZED,
-                                exception.getLocalizedMessage()));
-        }
-
-        @ExceptionHandler(ModifyStatusException.class)
-        public ResponseEntity<RestErrorMessage> handleErrorOnDatabase(ModifyStatusException exception,
-                                                                      HttpServletRequest request) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new RestErrorMessage(request, HttpStatus.CONFLICT,
                                 exception.getLocalizedMessage()));
         }
 
