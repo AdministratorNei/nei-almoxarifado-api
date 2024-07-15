@@ -110,9 +110,8 @@ public class OperationController {
         @PutMapping("/correcao/{id}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> toUpdate(@PathVariable Long id,
-                                             @RequestBody @Valid ItemUpdateDTO itemUpdateDTO,
-                                             @AuthenticationPrincipal JwtUserDetails userDetails) {
-                operationService.toUpdate(id, itemUpdateDTO, userDetails);
+                                             @RequestBody @Valid ItemUpdateDTO itemUpdateDTO) {
+                operationService.toUpdate(id, itemUpdateDTO);
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }

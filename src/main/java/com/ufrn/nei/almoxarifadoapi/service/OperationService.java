@@ -50,7 +50,7 @@ public class OperationService {
         return record;
     }
 
-    public void toUpdate(Long id, ItemUpdateDTO itemUpdateDTO, JwtUserDetails userDetails) {
+    public void toUpdate(Long id, ItemUpdateDTO itemUpdateDTO) {
         itemService.updateItem(id, itemUpdateDTO);
     }
 }
