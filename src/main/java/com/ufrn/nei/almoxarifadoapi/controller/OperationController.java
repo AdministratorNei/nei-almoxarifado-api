@@ -107,7 +107,7 @@ public class OperationController {
                         @ApiResponse(responseCode = "422", description = "Campos do request body foram preenchidos errados",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
                 })
-        @PutMapping("/correcao/{id}")
+        @PutMapping("/atualiza/{id}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> toUpdate(@PathVariable Long id,
                                              @RequestBody @Valid ItemUpdateDTO itemUpdateDTO) {
