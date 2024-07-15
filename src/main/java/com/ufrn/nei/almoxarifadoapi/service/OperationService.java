@@ -1,8 +1,7 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.item.ItemDeleteDTO;
-import com.ufrn.nei.almoxarifadoapi.dto.mapper.RecordMapper;
+import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.RecordEntity;
@@ -41,14 +40,15 @@ public class OperationService {
         return record;
     }
 
-    public RecordEntity toDelete(Long itemId, ItemDeleteDTO deleteDTO, JwtUserDetails userDetails) {
-        itemService.deleteOrConsumeItem(itemId, deleteDTO.getQuantity());
+    public void toDelete(Long itemId, JwtUserDetails userDetails) {
+        ItemEntity item = itemService.findById(itemId);
 
-        RecordCreateDTO recordCreateDTO = new RecordCreateDTO(userDetails.getId(), itemId, deleteDTO.getQuantity());
+        RecordCreateDTO recordCreateDTO = new RecordCreateDTO(userDetails.getId(), itemId, item.getQuantity());
         RecordEntity record = recordService.save(recordCreateDTO, RecordOperationEnum.EXCLUSAO);
+        itemService.setLastRecord(item, record);
 
-        itemService.setLastRecord(itemService.findById(itemId), record);
-
-        return record;
+        item.setQuantity(0);
+        item.setAvailable(Boolean.FALSE);
+        itemService.itemSave(item);
     }
 }

@@ -91,10 +91,9 @@ public class OperationController {
         @DeleteMapping("/deletar/{id}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<RecordResponseDTO> toDelete(@PathVariable Long id,
-                                                          @RequestBody @Valid ItemDeleteDTO deleteDTO,
                                                           @AuthenticationPrincipal JwtUserDetails userDetails) {
-                RecordEntity record = operationService.toDelete(id, deleteDTO, userDetails);
+                operationService.toDelete(id, userDetails);
 
-                return ResponseEntity.status(HttpStatus.OK).body(RecordMapper.toResponseDTO(record));
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 }
