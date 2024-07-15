@@ -67,7 +67,7 @@ public class RestExceptionHandler {
         }
 
         @ExceptionHandler(UnauthorizedAccessException.class)
-        public ResponseEntity<RestErrorMessage> handleErrorOnDatabase(UnauthorizedAccessException exception,
+        public ResponseEntity<RestErrorMessage> handleUnauthorized(UnauthorizedAccessException exception,
                                                                       HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new RestErrorMessage(request, HttpStatus.UNAUTHORIZED,
