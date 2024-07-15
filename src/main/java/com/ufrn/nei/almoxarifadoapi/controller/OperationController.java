@@ -74,13 +74,11 @@ public class OperationController {
         }
 
         @Operation(summary = "Criar registro de exclusão.",
-                description = "Diminuirá a quantidade especificada do item, " +
-                        "se a quantidade chegar a zero após a chamada do método o item será deletado. " +
-                        "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
+                description = "Setará a quantidade do item para zero e " +
+                        "setará disponibilidade para falso. Acesso restrito a role='ADMIN'.",
                 security = @SecurityRequirement(name = "security"),
                 responses = {
-                        @ApiResponse(responseCode = "200", description = "Registro excluido com sucesso.",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RecordResponseDTO.class))),
+                        @ApiResponse(responseCode = "204", description = "Item excluido com sucesso."),
                         @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                         @ApiResponse(responseCode = "404", description = "Erro ao excluir item. Item não encontrado",
@@ -88,7 +86,7 @@ public class OperationController {
                         @ApiResponse(responseCode = "500", description = "Erro ao excluir item. Quantidade de itens disponíveis insuficientes.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                 })
-        @DeleteMapping("/deletar/{id}")
+        @DeleteMapping("/deleta/{id}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<RecordResponseDTO> toDelete(@PathVariable Long id,
                                                           @AuthenticationPrincipal JwtUserDetails userDetails) {
