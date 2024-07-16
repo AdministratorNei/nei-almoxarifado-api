@@ -1,11 +1,13 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.RecordEntity;
 import com.ufrn.nei.almoxarifadoapi.enums.RecordOperationEnum;
 import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtAuthenticationContext;
+import com.ufrn.nei.almoxarifadoapi.infra.jwt.JwtUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +40,15 @@ public class OperationService {
         return record;
     }
 
-    public RecordEntity toDelete(RecordCreateDTO createDTO) {
-        itemService.deleteOrConsumeItem(createDTO.getItemID(), createDTO.getQuantity());
+    public void toDelete(Long itemId, JwtUserDetails userDetails) {
+        ItemEntity item = itemService.findById(itemId);
 
-        RecordEntity record = recordService.save(createDTO, RecordOperationEnum.EXCLUSAO);
+        RecordCreateDTO recordCreateDTO = new RecordCreateDTO(userDetails.getId(), itemId, item.getQuantity());
+        RecordEntity record = recordService.save(recordCreateDTO, RecordOperationEnum.EXCLUSAO);
+        itemService.setLastRecord(item, record);
 
-        itemService.setLastRecord(itemService.findById(createDTO.getItemID()), record);
-
-        return record;
+        item.setQuantity(0);
+        item.setAvailable(Boolean.FALSE);
+        itemService.itemSave(item);
     }
 }
