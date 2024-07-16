@@ -1,0 +1,1 @@
+ALTER TABLE solicitações ADD COLUMN comentário_admin VARCHAR(255);

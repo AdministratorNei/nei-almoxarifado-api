@@ -106,9 +106,14 @@ public class ItemService {
         }
 
         item.setAvailable(true);
-        itemRepository.save(item);
+        this.itemSave(item);
 
         return item;
+    }
+
+    @Transactional
+    public void itemSave(ItemEntity item) {
+        itemRepository.save(item);
     }
 
     @Transactional

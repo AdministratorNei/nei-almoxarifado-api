@@ -14,6 +14,7 @@ public interface RequestProjection {
     Long getQuantity();
     UserEntity getUser();
     ItemEntity getItem();
+    String getAdminComment();
     @JsonIgnore
     Timestamp getCreatedAt();
     @JsonIgnore

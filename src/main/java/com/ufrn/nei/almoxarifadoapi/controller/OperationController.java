@@ -2,6 +2,7 @@ package com.ufrn.nei.almoxarifadoapi.controller;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemDeleteDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RecordMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordResponseDTO;
@@ -74,12 +75,11 @@ public class OperationController {
         }
 
         @Operation(summary = "Criar registro de exclusão.",
-                description = "Excluirá um item. Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
-                deprecated = true,
+                description = "Setará a quantidade do item para zero e " +
+                        "setará disponibilidade para falso. Acesso restrito a role='ADMIN'.",
                 security = @SecurityRequirement(name = "security"),
                 responses = {
-                        @ApiResponse(responseCode = "200", description = "Registro excluido com sucesso.",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RecordResponseDTO.class))),
+                        @ApiResponse(responseCode = "204", description = "Item excluido com sucesso."),
                         @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                         @ApiResponse(responseCode = "404", description = "Erro ao excluir item. Item não encontrado",
@@ -87,12 +87,13 @@ public class OperationController {
                         @ApiResponse(responseCode = "500", description = "Erro ao excluir item. Quantidade de itens disponíveis insuficientes.",
                                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
                 })
-        @PostMapping("/exclusao")
+        @DeleteMapping("/deleta/{id}")
         @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<RecordResponseDTO> toDelete(@RequestBody @Valid RecordCreateDTO createDTO) {
-                RecordEntity record = operationService.toDelete(createDTO);
+        public ResponseEntity<RecordResponseDTO> toDelete(@PathVariable Long id,
+                                                          @AuthenticationPrincipal JwtUserDetails userDetails) {
+                operationService.toDelete(id, userDetails);
 
-                return ResponseEntity.status(HttpStatus.OK).body(RecordMapper.toResponseDTO(record));
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
         @Operation(summary = "Atualizar item.",
