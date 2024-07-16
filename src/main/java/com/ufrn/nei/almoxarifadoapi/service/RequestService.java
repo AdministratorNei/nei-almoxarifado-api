@@ -2,6 +2,7 @@ package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RequestMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.request.RequestAdminCommentDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.request.RequestCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
 import com.ufrn.nei.almoxarifadoapi.entity.RequestEntity;
@@ -26,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +66,7 @@ public class RequestService {
     }
 
     @Transactional
-    public Boolean accept(Long id) {
+    public Boolean accept(Long id, RequestAdminCommentDTO adminCommentDTO) {
         RequestEntity request = findById(id);
 
         validateRequestStatus(request, RequestStatusEnum.ACEITO);
@@ -79,11 +78,13 @@ public class RequestService {
             return Boolean.FALSE;
         }
 
-        if (updateRequestStatus(request, RequestStatusEnum.ACEITO)) {
+        String comment = adminCommentDTO != null ? adminCommentDTO.getComment() : null;
+
+        if (updateRequest(request, RequestStatusEnum.ACEITO, comment)) {
             UserEntity user = request.getUser();
             ItemEntity item = request.getItem();
             mailService.sendMailRequestAcceptedAsync(user.getEmail(), user.getName(),
-                    item.getName(), request.getUpdatedAt(), request.getQuantity());
+                    item.getName(), request.getUpdatedAt(), request.getQuantity(), comment);
 
             return Boolean.TRUE;
         }
@@ -92,14 +93,16 @@ public class RequestService {
     }
 
     @Transactional
-    public Boolean decline(Long id) {
+    public Boolean decline(Long id, RequestAdminCommentDTO adminCommentDTO) {
         RequestEntity request = findById(id);
 
-        if (updateRequestStatus(request, RequestStatusEnum.RECUSADO)) {
+        String comment = adminCommentDTO != null ? adminCommentDTO.getComment() : null;
+
+        if (updateRequest(request, RequestStatusEnum.RECUSADO, comment)) {
             UserEntity user = request.getUser();
             ItemEntity item = request.getItem();
             mailService.sendMailRequestDeniedAsync(user.getEmail(), user.getName(),
-                    item.getName(), request.getUpdatedAt(), request.getQuantity());
+                    item.getName(), request.getUpdatedAt(), request.getQuantity(), comment);
 
             return Boolean.TRUE;
         }
@@ -111,7 +114,7 @@ public class RequestService {
     public Boolean cancel(Long id) {
         RequestEntity request = findById(id);
 
-        if (updateRequestStatus(request, RequestStatusEnum.CANCELADO)) {
+        if (updateRequest(request, RequestStatusEnum.CANCELADO, null)) {
             UserEntity user = request.getUser();
             ItemEntity item = request.getItem();
             mailService.sendMailRequestCanceledAsync(user.getEmail(), user.getName(),
@@ -206,12 +209,13 @@ public class RequestService {
     // Métodos Auxiliares
 
     @Transactional
-    private Boolean updateRequestStatus(RequestEntity request, RequestStatusEnum status) {
+    private Boolean updateRequest(RequestEntity request, RequestStatusEnum status, String adminComment) {
         validateRequestStatus(request, status);
 
         try {
             // Atualizar o status da solicitação
             request.setStatus(status);
+            request.setAdminComment(adminComment);
             request.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             requestRepository.save(request);
         } catch (RuntimeException err) {

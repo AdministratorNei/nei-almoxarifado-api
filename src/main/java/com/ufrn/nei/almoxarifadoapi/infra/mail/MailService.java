@@ -48,9 +48,10 @@ public class MailService {
 
     @Async
     public void sendMailRequestAcceptedAsync(String userEmail, String userName,
-                                               String itemName, Timestamp date, Long itemQuantity) {
+                                               String itemName, Timestamp date, Long itemQuantity, String adminComment) {
         SimpleMailMessage message =
-                mailTemplates.buildMailMessageRequestAccepted(userEmail, userName, itemName, date, itemQuantity);
+                mailTemplates.buildMailMessageRequestAccepted(userEmail, userName, itemName, date,
+                                                              itemQuantity, adminComment);
 
         CompletableFuture<Boolean> sender = buildSendEmailAsync(message);
 
@@ -59,9 +60,10 @@ public class MailService {
 
     @Async
     public void sendMailRequestDeniedAsync(String userEmail, String userName,
-                                             String itemName, Timestamp date, Long itemQuantity) {
+                                             String itemName, Timestamp date, Long itemQuantity, String adminComment) {
         SimpleMailMessage message =
-                mailTemplates.buildMailMessageRequestDenied(userEmail, userName, itemName, date, itemQuantity);
+                mailTemplates.buildMailMessageRequestDenied(userEmail, userName, itemName, date,
+                                                            itemQuantity, adminComment);
 
         CompletableFuture<Boolean> sender = buildSendEmailAsync(message);
 
@@ -72,7 +74,8 @@ public class MailService {
     public void sendMailRequestCanceledAsync(String userEmail, String userName,
                                            String itemName, Timestamp date, Long itemQuantity) {
         SimpleMailMessage message =
-                mailTemplates.buildMailMessageRequestCanceled(userEmail, userName, itemName, date, itemQuantity);
+                mailTemplates.buildMailMessageRequestCanceled(userEmail, userName, itemName, date,
+                                                              itemQuantity);
 
         CompletableFuture<Boolean> sender = buildSendEmailAsync(message);
 

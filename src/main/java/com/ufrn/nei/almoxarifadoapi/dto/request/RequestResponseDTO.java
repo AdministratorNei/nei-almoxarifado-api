@@ -24,6 +24,7 @@ public class RequestResponseDTO {
     private UserResponseDTO user;
     private String createdAt;
     private String updatedAt;
+    private String adminComment;
 
     @Override
     public boolean equals(Object o) {

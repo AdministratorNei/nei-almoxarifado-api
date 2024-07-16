@@ -79,58 +79,58 @@ public class MailTemplates {
   }
 
   public SimpleMailMessage buildMailMessageRequestAccepted(String userEmail, String userName,
-      String itemName, Timestamp date, Long itemQuantity) {
-    String formatDate = RefactorDate.refactorTimestamp(date);
+      String itemName, Timestamp date, Long itemQuantity, String adminComment) {
+      String formatDate = RefactorDate.refactorTimestamp(date);
 
-    String subject = "Sua solicitação foi aceita!";
-    String text = String.format("""
-        Olá %s,
+      String subject = "Sua solicitação foi aceita!";
+      String text = String.format("""
+          Olá %s,
+  
+          Sua solicitação do item '%s' foi aceita!
+  
+          Detalhes:
+          - Item: %s
+          - Quantidade: %d
+          - Hora da Aceitação: %s
+          %s
+          Obrigado por utilizar nosso sistema.""",
+          userName, itemName, itemName, itemQuantity, formatDate, this.getAdminComment(adminComment));
 
-        Sua solicitação do item '%s' foi aceita!
+      simpleMailMessage.setTo(userEmail);
+      simpleMailMessage.setSubject(subject);
+      simpleMailMessage.setSentDate(new Date());
+      simpleMailMessage.setText(text);
 
-        Detalhes:
-        - Item: %s
-        - Quantidade: %d
-        - Hora da Aceitação: %s
-
-        Obrigado por utilizar nosso sistema.""",
-        userName, itemName, itemName, itemQuantity, formatDate);
-
-    simpleMailMessage.setTo(userEmail);
-    simpleMailMessage.setSubject(subject);
-    simpleMailMessage.setSentDate(new Date());
-    simpleMailMessage.setText(text);
-
-    return simpleMailMessage;
+      return simpleMailMessage;
   }
 
   public SimpleMailMessage buildMailMessageRequestDenied(String userEmail, String userName,
-      String itemName, Timestamp date, Long itemQuantity) {
-    String formatDate = RefactorDate.refactorTimestamp(date);
+      String itemName, Timestamp date, Long itemQuantity, String adminComment) {
+      String formatDate = RefactorDate.refactorTimestamp(date);
 
-    String subject = "Sua solicitação foi recusada.";
-    String text = String.format("""
+      String subject = "Sua solicitação foi recusada.";
+      String text = String.format("""
         Olá %s,
-
+        
         Sua solicitação para o item '%s' foi recusada.
-
+        
         Detalhes:
         - Item: %s
         - Quantidade: %d
-        - Hora da Recusa: %s
-
+        - Hora da recusa: %s
+        %s
         Por favor, entre em contato conosco para mais informações.
-
+        
         Atenciosamente,
         Equipe do Almoxarifado""",
-        userName, itemName, itemName, itemQuantity, formatDate);
+        userName, itemName, itemName, itemQuantity, formatDate, this.getAdminComment(adminComment));
 
-    simpleMailMessage.setTo(userEmail);
-    simpleMailMessage.setSubject(subject);
-    simpleMailMessage.setSentDate(new Date());
-    simpleMailMessage.setText(text);
+      simpleMailMessage.setTo(userEmail);
+      simpleMailMessage.setSubject(subject);
+      simpleMailMessage.setSentDate(new Date());
+      simpleMailMessage.setText(text);
 
-    return simpleMailMessage;
+      return simpleMailMessage;
   }
 
   public SimpleMailMessage buildMailMessageRequestCanceled(String userEmail, String userName,
@@ -196,5 +196,15 @@ public class MailTemplates {
     helper.setText(text, true);
 
     return helper;
+  }
+
+  private String getAdminComment(String adminComment) {
+      adminComment = adminComment != null ? adminComment : "";
+
+      if (adminComment.isEmpty()) {
+           return adminComment;
+      }
+
+      return String.format("- Comentário da administração: %s\n", adminComment);
   }
 }

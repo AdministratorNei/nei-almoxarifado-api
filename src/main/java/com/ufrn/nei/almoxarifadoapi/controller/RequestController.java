@@ -4,6 +4,7 @@ import com.ufrn.nei.almoxarifadoapi.dto.mapper.PageableMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RequestMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.pageable.PageableDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordResponseDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.request.RequestAdminCommentDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.request.RequestCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.request.RequestResponseDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.RequestEntity;
@@ -82,8 +83,8 @@ public class RequestController {
             })
     @PatchMapping("/accept/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> accept(@PathVariable Long id) {
-        Boolean request = requestService.accept(id);
+    public ResponseEntity<Void> accept(@PathVariable Long id, @RequestBody(required = false) RequestAdminCommentDTO adminCommentDTO) {
+        Boolean request = requestService.accept(id, adminCommentDTO);
 
         if (request == Boolean.TRUE) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -109,8 +110,8 @@ public class RequestController {
     })
     @PatchMapping("/decline/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> decline(@PathVariable Long id) {
-        Boolean request = requestService.decline(id);
+    public ResponseEntity<Void> decline(@PathVariable Long id, @RequestBody(required = false) RequestAdminCommentDTO adminCommentDTO) {
+        Boolean request = requestService.decline(id, adminCommentDTO);
 
         if (request == Boolean.TRUE) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
