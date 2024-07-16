@@ -1,6 +1,7 @@
 package com.ufrn.nei.almoxarifadoapi.service;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.ItemMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.entity.ItemEntity;
@@ -50,5 +51,9 @@ public class OperationService {
         item.setQuantity(0);
         item.setAvailable(Boolean.FALSE);
         itemService.itemSave(item);
+    }
+
+    public void toUpdate(Long id, ItemUpdateDTO itemUpdateDTO) {
+        itemService.updateItem(id, itemUpdateDTO);
     }
 }

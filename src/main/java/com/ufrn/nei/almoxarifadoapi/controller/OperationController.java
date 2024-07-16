@@ -1,6 +1,7 @@
 package com.ufrn.nei.almoxarifadoapi.controller;
 
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemCreateDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.item.ItemUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.item.ItemDeleteDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.RecordMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.record.RecordCreateDTO;
@@ -91,6 +92,27 @@ public class OperationController {
         public ResponseEntity<RecordResponseDTO> toDelete(@PathVariable Long id,
                                                           @AuthenticationPrincipal JwtUserDetails userDetails) {
                 operationService.toDelete(id, userDetails);
+
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        @Operation(summary = "Atualizar item.",
+                description = "Atualizará as informações de um item. Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
+                security = @SecurityRequirement(name = "security"),
+                responses = {
+                        @ApiResponse(responseCode = "204", description = "Item atualizado com sucesso."),
+                        @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+                        @ApiResponse(responseCode = "404", description = "Erro ao atualizar item. Item não encontrado",
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+                        @ApiResponse(responseCode = "422", description = "Campos do request body foram preenchidos errados",
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
+                })
+        @PutMapping("/atualiza/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> toUpdate(@PathVariable Long id,
+                                             @RequestBody @Valid ItemUpdateDTO itemUpdateDTO) {
+                operationService.toUpdate(id, itemUpdateDTO);
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }

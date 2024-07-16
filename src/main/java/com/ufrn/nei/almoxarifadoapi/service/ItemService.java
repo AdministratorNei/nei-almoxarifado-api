@@ -158,12 +158,22 @@ public class ItemService {
         if (data.getName() != null && !data.getName().isBlank()) {
             item.setName(data.getName());
         }
+        if (data.getType() != null && !data.getType().isBlank()) {
+            item.setType(data.getType());
+        }
         if (data.getSipacCode() != null) {
             item.setSipacCode(data.getSipacCode());
         }
-        item.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        if (data.getMinimumStockLevel() != null) {
+            item.setMinimumStockLevel(data.getMinimumStockLevel());
+        }
+        if (data.getQuantity() != null) {
+            item.setQuantity(data.getQuantity());
+        }
 
+        item.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         itemRepository.save(item);
+
         return item;
     }
 
