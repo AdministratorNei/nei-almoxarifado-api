@@ -39,7 +39,8 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public Optional<RoleEntity> findByRoleName(String role) {
-        return roleRepository.findByRole(role);
+        String roleFormatted = this.formatRoleName(role);
+        return roleRepository.findByRole(roleFormatted);
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +70,17 @@ public class RoleService {
         role.setRole(newRole.getNewRole());
 
         roleRepository.save(role);
+        return role;
+    }
+
+    public String formatRoleName(String role) {
+        String rolePrefix = "ROLE_";
+        role = role.toUpperCase();
+
+        if (!role.startsWith(rolePrefix)) {
+            role = rolePrefix + role;
+        }
+
         return role;
     }
 }

@@ -3,6 +3,7 @@ package com.ufrn.nei.almoxarifadoapi.controller;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.PageableMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.mapper.UserMapper;
 import com.ufrn.nei.almoxarifadoapi.dto.pageable.PageableDTO;
+import com.ufrn.nei.almoxarifadoapi.dto.role.RoleUpdateDto;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserCreateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserForgotPasswordUpdateDTO;
 import com.ufrn.nei.almoxarifadoapi.dto.user.UserPasswordUpdateDTO;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Usuários", description = "Contém todas as operações relativas aos recursos para criação, edição de senha, leitura e exclusão de um usuário")
@@ -212,5 +214,26 @@ public class UserController {
                 userService.deleteUser(id);
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+
+        @Operation(summary = "Atualizar role de usuário",
+            description = "Mudará o encargo do usuário do sistema." +
+                    "Requsição exige o uso de um bearer token. Acesso restrito a role='ADMIN'.",
+            security = @SecurityRequirement(name = "security"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Role trocada com sucesso.",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "401", description = "Usuário não está autenticado",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Usuário ou role não encontrado.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
+            })
+        @PatchMapping("/{email}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Void> updateRole(@PathVariable String email, @RequestBody RoleUpdateDto roleUpdateDto) {
+            userService.updateRole(email, roleUpdateDto);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 }
