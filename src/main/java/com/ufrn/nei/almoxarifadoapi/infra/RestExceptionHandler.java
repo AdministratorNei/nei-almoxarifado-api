@@ -20,21 +20,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class RestExceptionHandler {
         @ExceptionHandler({EntityNotFoundException.class, ItemNotActiveException.class, StatusNotFoundException.class})
-        public ResponseEntity<RestErrorMessage> handleItemNotFoundException(EntityNotFoundException exception,
+        public ResponseEntity<RestErrorMessage> handleNotFoundStatus(RuntimeException exception,
                         HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
                 return ResponseEntity
                                 .status(HttpStatus.NOT_FOUND)
                                 .body(new RestErrorMessage(request, HttpStatus.NOT_FOUND, exception.getMessage()));
-        }
-
-        @ExceptionHandler(CreateEntityException.class)
-        public ResponseEntity<RestErrorMessage> handleCreateEntityException(CreateEntityException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
         }
 
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -53,34 +44,18 @@ public class RestExceptionHandler {
                 log.info("API ERROR - ", exception);
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, "Campo(s) invalido(s)"));
+                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, "Requisição inválida"));
         }
 
-        @ExceptionHandler(PasswordInvalidException.class)
-        public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(PasswordInvalidException exception,
+        @ExceptionHandler({PasswordInvalidException.class, InvalidRecoveryTokenException.class,
+                OperationErrorException.class, NotAvailableQuantityException.class,
+                ModifyStatusException.class})
+        public ResponseEntity<RestErrorMessage> handleBadRequest(RuntimeException exception,
                         HttpServletRequest request) {
                 log.info("API ERROR - ", exception);
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
-        }
-
-        @ExceptionHandler(InvalidRecoveryTokenException.class)
-        public ResponseEntity<RestErrorMessage> handleInvalidRecoveryToken(InvalidRecoveryTokenException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, exception.getMessage()));
-        }
-
-        @ExceptionHandler({OperationErrorException.class, NotAvailableQuantityException.class})
-        public ResponseEntity<RestErrorMessage> handlePasswordInvalidException(OperationErrorException exception,
-                        HttpServletRequest request) {
-                log.info("API ERROR - ", exception);
-
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage()));
         }
 
         @ExceptionHandler(DataIntegrityViolationException.class)
@@ -92,25 +67,10 @@ public class RestExceptionHandler {
         }
 
         @ExceptionHandler(UnauthorizedAccessException.class)
-        public ResponseEntity<RestErrorMessage> handleErrorOnDatabase(UnauthorizedAccessException exception,
+        public ResponseEntity<RestErrorMessage> handleUnauthorized(UnauthorizedAccessException exception,
                                                                       HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new RestErrorMessage(request, HttpStatus.UNAUTHORIZED,
-                                exception.getLocalizedMessage()));
-        }
-
-        @ExceptionHandler(ModifyStatusException.class)
-        public ResponseEntity<RestErrorMessage> handleErrorOnDatabase(ModifyStatusException exception,
-                                                                      HttpServletRequest request) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new RestErrorMessage(request, HttpStatus.CONFLICT,
-                                exception.getLocalizedMessage()));
-        }
-
-        @ExceptionHandler(ConflictUpdatePasswordException.class)
-        public ResponseEntity<RestErrorMessage> handleMultipleIntentionsOnUpdatePassword(ConflictUpdatePasswordException exception, HttpServletRequest request) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new RestErrorMessage(request, HttpStatus.CONFLICT,
                                 exception.getLocalizedMessage()));
         }
 
@@ -120,5 +80,14 @@ public class RestExceptionHandler {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
                                 exception.getCause().getLocalizedMessage()));
+        }
+
+        @ExceptionHandler({Exception.class})
+        public ResponseEntity<RestErrorMessage> handleGenericException(Exception exception,
+                                                                        HttpServletRequest request) {
+                log.info("API ERROR - ", exception);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Erro ao processar requisição"));
         }
 }
