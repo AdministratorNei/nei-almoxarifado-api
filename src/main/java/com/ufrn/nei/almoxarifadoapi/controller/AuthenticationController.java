@@ -61,7 +61,10 @@ public class AuthenticationController {
   @Operation(summary = "Autenticar na API", description = "Recurso de autenticação na API", responses = {
       @ApiResponse(responseCode = "200", description = "Autenticação realizada com sucesso e retorno de um Bearer Token", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtToken.class))),
       @ApiResponse(responseCode = "400", description = "Credenciais inválidas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
-      @ApiResponse(responseCode = "422", description = "Campo(s) Inválido(s)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
+      @ApiResponse(responseCode = "403", description = "Usuário está inativo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+      @ApiResponse(responseCode = "404", description = "Usuário não existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+      @ApiResponse(responseCode = "422", description = "Campo(s) Inválido(s)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class))),
+      @ApiResponse(responseCode = "500", description = "Erro desconhecido ao realizar autenticação", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestErrorMessage.class)))
   })
   @PostMapping
   public ResponseEntity<?> authenticate(@RequestBody @Valid UserLoginDTO login, HttpServletRequest request) {
