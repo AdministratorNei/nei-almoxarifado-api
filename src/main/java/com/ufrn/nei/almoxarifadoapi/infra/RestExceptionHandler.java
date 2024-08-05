@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -89,5 +92,33 @@ public class RestExceptionHandler {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
                                 "Erro ao processar requisição"));
+        }
+
+        @ExceptionHandler({InternalAuthenticationServiceException.class})
+        public ResponseEntity<RestErrorMessage> handleInternalAuthenticationServiceException(Exception exception,
+                                                                       HttpServletRequest request) {
+                log.info("API ERROR - ", exception);
+
+                if (exception.getCause() instanceof DisabledException) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new RestErrorMessage(request, HttpStatus.FORBIDDEN,
+                                        "Usuário inativo."));
+                }
+                else if (exception.getCause() instanceof EntityNotFoundException) {
+                        return handleNotFoundStatus((RuntimeException) exception, request);
+                }
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new RestErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Erro ao processar requisição"));
+        }
+
+        @ExceptionHandler({BadCredentialsException.class})
+        public ResponseEntity<RestErrorMessage> handleInternalBadCredentialsException(Exception exception,
+                                                                                             HttpServletRequest request) {
+                log.info("API ERROR - ", exception);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST,
+                                "Credenciais inválidas."));
         }
 }

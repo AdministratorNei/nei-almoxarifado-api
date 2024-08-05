@@ -30,9 +30,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,21 +67,14 @@ public class AuthenticationController {
   public ResponseEntity<?> authenticate(@RequestBody @Valid UserLoginDTO login, HttpServletRequest request) {
     log.info("Processo de autenticação pelo login {}", login.getEmail());
 
-    try {
-      UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-          login.getEmail(), login.getPassword());
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            login.getEmail(), login.getPassword());
 
-      authenticationManager.authenticate(authenticationToken);
+    authenticationManager.authenticate(authenticationToken);
 
-      JwtToken token = detailsService.getTokenAuthenticated(login.getEmail());
+    JwtToken token = detailsService.getTokenAuthenticated(login.getEmail());
 
-      return ResponseEntity.status(HttpStatus.OK).body(token);
-    } catch (AuthenticationException ex) {
-      log.warn("Bad credentials from username {}", login.getEmail());
-    }
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new RestErrorMessage(request, HttpStatus.BAD_REQUEST, "Credenciais inválidas"));
+    return ResponseEntity.status(HttpStatus.OK).body(token);
   }
 
   @Operation(summary = "Esqueceu a senha", description = "Solicita um token de redefinição de senha no e-mail", responses = {
