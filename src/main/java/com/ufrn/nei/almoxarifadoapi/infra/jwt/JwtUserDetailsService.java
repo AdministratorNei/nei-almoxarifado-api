@@ -5,6 +5,7 @@ import com.ufrn.nei.almoxarifadoapi.exception.EntityNotFoundException;
 import com.ufrn.nei.almoxarifadoapi.repository.UserRepository;
 import com.ufrn.nei.almoxarifadoapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,7 +22,12 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username).orElseThrow(
-                EntityNotFoundException::new);
+                () -> new EntityNotFoundException("Usuário não encontrado.")
+        );
+
+        if (!user.getActive()) {
+            throw new DisabledException("Usuário inativo");
+        }
 
         return new JwtUserDetails(user);
     }
